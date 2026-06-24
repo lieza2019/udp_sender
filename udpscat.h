@@ -3,8 +3,8 @@
 #define FALSE 0
 #define FOREVER for(;;)
 
-#define DEFALUT_SEND_INTERVAL (500 * 1000)
-#define UDP_PAYLOAD_EDITBUF 65535
+#define DEFALUT_SEND_INTERVAL (500 * 1000) // in micro-seconds.
+#define UDP_PAYLOAD_EDITBUF 520 // in bytes.
 
 typedef struct ipaddr {
   int fst_oct;

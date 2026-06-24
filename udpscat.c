@@ -95,6 +95,7 @@ int main ( int argc, char **argv ) {
 }
 
 static int edit_sentdata ( void ) {
+  unsigned char *plim = &payload_buf[UDP_PAYLOAD_EDITBUF];
   unsigned char *pw = payload_buf;
   int wrote_len = 0;
   
@@ -103,18 +104,11 @@ static int edit_sentdata ( void ) {
     *p = htonl( udpscat_cond.seq );
     pw += sizeof( in_addr_t );
   }
-  {
-    unsigned char *p = pw;
-    p[0] = 'H';
-    p[1] = 'O';
-    p[2] = 'G';
-    p[3] = 'E';
-    p[4] = 'h';
-    p[5] = 'o';
-    p[6] = 'g';
-    p[7] = 'e';
-    p[8] = 0;
+  while( pw < plim ) {
+    *pw = 0xFF;
+    pw++;
   }
-  wrote_len = sizeof( in_addr_t ) + strlen( (char *)pw );
+  assert( pw == plim );
+  wrote_len = UDP_PAYLOAD_EDITBUF;
   return wrote_len;
 }
