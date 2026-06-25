@@ -12,6 +12,7 @@
 #define TERM_NORMALLY 0
 #define TERM_ILLFORMED_CMDPARAMS 1
 #define TERM_CANNOT_CREATE_SOCKET 2
+#define TERM_CANNOT_MODIFY_SOCKETOPT 3
 
 static struct {
   useconds_t cast_interval;
@@ -30,7 +31,7 @@ static void show_banner ( void ) {
   printf( "\n" );
   printf( "usage: udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_DESTPORT [CAST_INTERVAL]\n" );
   printf( " EMIT_NIC_IPADDR: The IP addr assigned on the NIC for UDP MULTI-cast packets emission.\n" );
-  printf( " DST_MCAST_IPADDR: The detination MULTI-cast addr for emission.\n" );
+  printf( " DST_MCAST_IPADDR: The detination MULTI-cast addr for sent.\n" );
   printf( " UDP_DESTPORT: The desination UDP/IP port to be casted.\n" );
   printf( " [CAST_INTERVAL]: Interval for MULTI-cast in msec, greater_than/equal_to 100 & lesser_than 1000.\n" );
 }
@@ -146,7 +147,7 @@ int main ( int argc, char **argv ) {
 			   (char *)&udpsender_cond.emit_nicaddr, sizeof(udpsender_cond.emit_nicaddr) );
     if( r_optmod < 0 ) {
       printf( "failed to specify the NIC for UDP MULTI-casting, giving up.\n" );
-      exit( -1 );
+      exit( TERM_CANNOT_MODIFY_SOCKETOPT );
     }
   }
   
