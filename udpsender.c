@@ -23,15 +23,16 @@ static struct {
 } udpsender_cond = { DEFALUT_SEND_INTERVAL };
 
 static void show_banner ( void ) {
-  printf( "usage: udpscat [-u] DST_HOST_IPADDR UDP_SEND_DSTPORT [CAST_INTERVAL]\n" );
+  printf( "usage: udpsender [-u] DST_HOST_IPADDR UDP_SEND_DSTPORT [CAST_INTERVAL]\n" );
   printf( " DST_HOST_IPADDR: The IP addr assigned to the NIC on target host.\n" );
   printf( " UDP_CAST_DSTPORT: The UDP desination port to be unicasted by this program.\n" );
   printf( " [CAST_INTERVAL]: Interval for UDP unicast in msec, greater_than/equal_to 100 & lesser_than 1000.\n" );
   printf( "\n" );
-  printf( "usage: udpscat -m SRC_NIC_IPADDR DST_MCAST_IPADDR UDP_DESTPORT [CAST_INTERVAL]\n" );
-  printf( " SRC_NIC_IPADDR: The IP addr assigned on the NIC bound for UDP MULTI-cast.\n" );
+  printf( "usage: udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_DESTPORT [CAST_INTERVAL]\n" );
+  printf( " EMIT_NIC_IPADDR: The IP addr assigned on the NIC for UDP MULTI-cast packets emission.\n" );
   printf( " DST_MCAST_IPADDR: The detination MULTI-cast addr for emission.\n" );
   printf( " UDP_DESTPORT: The desination UDP/IP port to be casted.\n" );
+  printf( " [CAST_INTERVAL]: Interval for MULTI-cast in msec, greater_than/equal_to 100 & lesser_than 1000.\n" );
 }
 
 static BOOL exam_cmdopts ( int argc, char **argv ) {
@@ -62,7 +63,7 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  } else
 	    printf( "invalid DST_MCAST_IPADDR.\n" );
 	} else
-	  printf( "invalid SRC_NIC_IPADDR.\n" );
+	  printf( "invalid EMIT_NIC_IPADDR.\n" );
       } else
 	show_banner();
     } else { /* MODE_UDP_UNICAST */
