@@ -1,5 +1,7 @@
+#CC = gcc
 CC = /usr/bin/gcc
 CFLAGS = -Wall -g
+#LD = gcc
 LD = /usr/bin/gcc
 LDFLAGS =
 
