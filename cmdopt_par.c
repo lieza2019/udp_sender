@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "udpscat.h"
+#include "udpsender.h"
 
 typedef enum ipaddr_par_ph {
   FST_OCT = 1,

@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
-#include "udpscat.h"
+#include "udpsender.h"
 
 #define TERM_NORMALLY 0
 #define TERM_ILLFORMED_CMDPARAMS 1
@@ -34,42 +34,11 @@ static void show_banner ( void ) {
   printf( " UDP_DESTPORT: The desination UDP/IP port to be casted.\n" );
 }
 
-#if 0
-static BOOL exam_cmdopts ( int argc, char **argv ) {
-  BOOL r = FALSE;
-  
-  if( (argc >= 3) && (argc <= 4) ) {
-    udpscat_cond.dst_ipaddr = inet_addr( argv[1] );
-    if( !(udpscat_cond.dst_ipaddr < 0) ) {
-      BOOL acc_dstport = FALSE;
-      acc_dstport = par_portnum( &udpscat_cond.dstport, argv[2], "UDP_UNICAST_DSTPORT:" );
-      if( acc_dstport ) {
-	if( argc > 3 ) {
-	  int interval = -1;
-	  assert( argc == 4 );
-	  interval = atoi( argv[3] );
-	  if( (interval >= 100) && (interval < 1000) ) {
-	    udpscat_cond.cast_interval = interval * 1000;
-	    r = TRUE;
-	  } else
-	    printf( "CAST_INTERVAL excesses range.\n" );
-	} else {
-	  assert( argc == 3 );
-	  r = TRUE;
-	}
-      }
-    } else
-      printf( "invalid DST_HOST_IPADDR.\n" );
-  } else
-    show_banner();
-  return r;
-}
-#else
 static BOOL exam_cmdopts ( int argc, char **argv ) {
   BOOL r = FALSE;
   
   if( (argc >= 3) && (argc <= 6) ) {
-    if( strcmp( argv[1], "-m" ) == 0 ) { /* mode_multicast */
+    if( strcmp( argv[1], "-m" ) == 0 ) { /* MODE_MULTICAST */
       if( argc >= 5 ) {
 	udpsender_cond.mode = MODE_MULTICAST;
 	udpsender_cond.emit_nicaddr = inet_addr( argv[2] );
@@ -96,10 +65,10 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  printf( "invalid SRC_NIC_IPADDR.\n" );
       } else
 	show_banner();
-    } else {
-      char *arg_1 = NULL;
-      char *arg_2 = NULL;
-      char *arg_3 = NULL;
+    } else { /* MODE_UDP_UNICAST */
+      char *arg_1 = NULL; // DST_HOST_IPADDR
+      char *arg_2 = NULL; // UDP_CAST_DSTPORT
+      char *arg_3 = NULL; // CAST_INTERVAL
       if( strcmp( argv[1], "-u" ) == 0 ) {
 	if( argc <= 5 ) {
 	  if( argc >= 4 ) {
@@ -148,7 +117,6 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
     show_banner();
   return r;
 }
-#endif
 
 static unsigned char payload_buf[UDP_PAYLOAD_EDITBUF];
 static int edit_sentdata ( void );

@@ -1,10 +1,3 @@
-/*
- * usage: mcast SRC_NIC_IPADDR DST_MCAST_IPADDR UDP_DESTPORT
- * SRC_NIC_IPADDR: The IP addr assigned on the NIC bound for UDP MULTI-cast.
- * DST_MCAST_IPADDR: The detination MULTI-cast addr for emission.
- * UDP_DESTPORT: The desination UDP/IP port to be casted.
-*/
-
 #define BOOL int
 #define TRUE 1
 #define FALSE 0

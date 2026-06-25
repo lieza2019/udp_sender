@@ -9,18 +9,18 @@ MV = mv
 RM = rm
 TOUCH = touch
 
-udpscat : udpscat.o cmdopt_par.o
+udpsender : udpsender.o cmdopt_par.o
 	$(LD) -o $@ $(LDFLAGS) $^
 
-udpscat.o : udpscat.c udpscat.h
+udpsender.o : udpsender.c udpsender.h
 	$(CC) $(CFLAGS) -c $<
-cmdopt_par.o : cmdopt_par.c udpscat.h
+cmdopt_par.o : cmdopt_par.c udpsender.h
 	$(CC) $(CFLAGS) -c $<
 
 .phony : clean
 clean :
 	-$(RM) ./*.o
-	-$(RM) ./udpscat
+	-$(RM) ./udpsender
 	-$(RM) ./a.out
 	-$(RM) ./*core
 	-$(RM) ./*~
