@@ -19,24 +19,40 @@ static struct {
   int blk_packetsnum;
   UDPSENDER_OPEMODE mode;  
   in_addr_t dst_ipaddr;
+#if 0
   in_addr_t emit_nicaddr;
+#else
+#if 0
+  struct {
+    IPADDR emit_nic;
+    in_addr_t emit_ipaddr;
+  } emit_nic_mcast;
+#else
+  struct {
+    IPADDR emit_nic;
+    in_addr_t emit_ipaddr;
+  } emit_mcast;
+#endif
+#endif
   unsigned short dstport;
   unsigned int seq;
 } udpsender_cond = { DEFALUT_SEND_INTERVAL, 1 };
 
 static void show_banner ( void ) {
-  printf( "usage: udpsender [-u] DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]\n" );
+  printf( "usage: udpsender [-u] DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]\n" );
+  printf( "       udpsender [-u] DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]\n" );
   printf( " DST_HOST_IPADDR: The IP addr assigned to the NIC on target host.\n" );
   printf( " UDP_SENT_DSTPORT: The UDP desination port to be unicasted by this program.\n" );
-  printf( " [BULKSENT_PACKETSNUM]: num of packets sent in bulk, from 1 to 10000.\n" );
-  printf( " [CAST_INTERVAL]: Interval for UDP unicast in msec, from 100 to 999.\n" );
+  printf( " BULKSENT_PACKETSNUM: num of packets sent in bulk, from 1 to 10000.\n" );
+  printf( " CAST_INTERVAL: Interval for UDP unicast in msec, from 100 to 999.\n" );
   printf( "\n" );
-  printf( "usage: udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]\n" );
+  printf( "usage: udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]\n" );
+  printf( "       udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]\n" );
   printf( " EMIT_NIC_IPADDR: The IP addr assigned on the NIC for UDP MULTI-cast packets emission.\n" );
   printf( " DST_MCAST_IPADDR: The detination MULTI-cast addr for sent.\n" );
   printf( " UDP_SENT_DSTPORT: The desination UDP/IP port to be casted.\n" );
-  printf( " [BULKSENT_PACKETSNUM]: num of packets sent in bulk, from 1 to 10000.\n" );
-  printf( " [CAST_INTERVAL]: Interval for MULTI-cast in msec, from 100 to 999.\n" );
+  printf( " BULKSENT_PACKETSNUM: num of packets sent in bulk, from 1 to 10000.\n" );
+  printf( " CAST_INTERVAL: Interval for MULTI-cast in msec, from 100 to 999.\n" );
 }
 
 static BOOL exam_cmdopts ( int argc, char **argv ) {
@@ -48,8 +64,15 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
       // udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]
       if( argc >= 5 ) {
 	udpsender_cond.mode = MODE_MULTICAST;
-	udpsender_cond.emit_nicaddr = inet_addr( argv[2] );
-	if( !(udpsender_cond.emit_nicaddr < 0) ) {
+#if 0
+	IPADDR emit_nic = {};
+	par_ipaddr( &emit_nic, argv[2], "EMIT_NIC_IPADDR:" );
+#else
+	BOOL acc_emit_ip = FALSE;
+	acc_emit_ip = par_ipaddr( &udpsender_cond.emit_mcast.emit_nic, argv[2], "EMIT_NIC_IPADDR:" );
+#endif
+	udpsender_cond.emit_mcast.emit_ipaddr = inet_addr( argv[2] );
+	if( acc_emit_ip && !(udpsender_cond.emit_mcast.emit_ipaddr < 0) ) {
 	  udpsender_cond.dst_ipaddr = inet_addr( argv[3] );
 	  if( !(udpsender_cond.dst_ipaddr < 0) ) {
 	    BOOL acc_dstport = FALSE;
@@ -176,9 +199,10 @@ int main ( int argc, char **argv ) {
   addr.sin_addr.s_addr = udpsender_cond.dst_ipaddr;
   if( udpsender_cond.mode == MODE_MULTICAST ) {
     int r_optmod = -1;
-    assert( udpsender_cond.emit_nicaddr != 0 );
+    assert( udpsender_cond.emit_mcast.emit_ipaddr != 0 );
     r_optmod = setsockopt( sock, IPPROTO_IP, IP_MULTICAST_IF,
-			   (char *)&udpsender_cond.emit_nicaddr, sizeof(udpsender_cond.emit_nicaddr) );
+			   (char *)&udpsender_cond.emit_mcast.emit_ipaddr,
+			   sizeof(udpsender_cond.emit_mcast.emit_ipaddr) );
     if( r_optmod < 0 ) {
       printf( "failed to specify the NIC for UDP MULTI-casting, giving up.\n" );
       exit( TERM_CANNOT_MODIFY_SOCKETOPT );
