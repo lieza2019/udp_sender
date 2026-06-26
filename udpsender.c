@@ -38,6 +38,7 @@ static void show_banner ( void ) {
 
 static BOOL exam_cmdopts ( int argc, char **argv ) {
   BOOL r = FALSE;
+  assert( (argc > 0) && argv[0] );
   
   if( (argc >= 3) && (argc <= 6) ) {
     if( strcmp( argv[1], "-m" ) == 0 ) { /* MODE_MULTICAST */
@@ -68,17 +69,17 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
       } else
 	show_banner();
     } else { /* MODE_UDP_UNICAST */
-      char *arg_1 = NULL; // DST_HOST_IPADDR
-      char *arg_2 = NULL; // UDP_CAST_DSTPORT
-      char *arg_3 = NULL; // CAST_INTERVAL
+      char *opt_1 = NULL; // DST_HOST_IPADDR
+      char *opt_2 = NULL; // UDP_CAST_DSTPORT
+      char *opt_3 = NULL; // CAST_INTERVAL
       if( strcmp( argv[1], "-u" ) == 0 ) {
 	if( argc <= 5 ) {
 	  if( argc >= 4 ) {
-	    arg_1 = argv[2];
-	    arg_2 = argv[3];
+	    opt_1 = argv[2];
+	    opt_2 = argv[3];
 	    if( argc > 4 ) {
 	      assert( argc == 5 );
-	      arg_3 = argv[4];
+	      opt_3 = argv[4];
 	    }
 	    goto mode_udp_unicast;
 	  } else
@@ -87,20 +88,20 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  show_banner();
       } else {
 	if( argc <= 4 ) {
-	  arg_1 = argv[1];
-	  arg_2 = argv[2];
+	  opt_1 = argv[1];
+	  opt_2 = argv[2];
 	  if( argc == 4 )
-	    arg_3 = argv[3];
+	    opt_3 = argv[3];
 	mode_udp_unicast:
 	  udpsender_cond.mode = MODE_UDP_UNICAST;
-	  udpsender_cond.dst_ipaddr = inet_addr( arg_1 );
+	  udpsender_cond.dst_ipaddr = inet_addr( opt_1 );
 	  if( !(udpsender_cond.dst_ipaddr < 0) ) {
 	    BOOL acc_dstport = FALSE;
-	    acc_dstport = par_portnum( &udpsender_cond.dstport, arg_2, "UDP_UNICAST_DSTPORT:" );
+	    acc_dstport = par_portnum( &udpsender_cond.dstport, opt_2, "UDP_UNICAST_DSTPORT:" );
 	    if( acc_dstport ) {
-	      if( arg_3 ) {
+	      if( opt_3 ) {
 		int interval = -1;
-		interval = atoi( arg_3 );
+		interval = atoi( opt_3 );
 		if( (interval >= 100) && (interval < 1000) ) {
 		  udpsender_cond.cast_interval = interval * 1000;
 		  r = TRUE;
