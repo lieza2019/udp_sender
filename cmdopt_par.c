@@ -95,18 +95,20 @@ BOOL par_ipaddr ( IPADDR_PTR pipaddr, const char *pstr_ipaddr, const char *prefi
     assert( pipaddr->thr_oct > -1 );
     assert( pipaddr->for_oct > -1 );    
     BOOL acc[4] = { FALSE, FALSE, FALSE, FALSE };    
-    acc[0] = (pipaddr->fst_oct > 0) && (pipaddr->fst_oct < 256);
-    acc[1] = (pipaddr->snd_oct > 0) && (pipaddr->snd_oct < 256);
-    acc[2] = (pipaddr->thr_oct > 0) && (pipaddr->thr_oct < 256);
-    acc[3] = (pipaddr->for_oct > 0) && (pipaddr->for_oct < 256);
+    acc[0] = (pipaddr->fst_oct >= 0) && (pipaddr->fst_oct < 256);
+    acc[1] = (pipaddr->snd_oct >= 0) && (pipaddr->snd_oct < 256);
+    acc[2] = (pipaddr->thr_oct >= 0) && (pipaddr->thr_oct < 256);
+    acc[3] = (pipaddr->for_oct >= 0) && (pipaddr->for_oct < 256);
     if( !(acc[0] && acc[1] && acc[2] && acc[3]) ) {
       BOOL dirty = FALSE;
       int i;
+      printf( "%s", prefix_errmsg );
       for( i = 0; i < 4; i++ ) {
 	if( dirty )
 	  printf( ", " );
+	dirty = FALSE;
 	if( acc[i] ) {
-	  printf( "%dth", i );
+	  printf( "%dth", (i + 1) );
 	  dirty = TRUE;
 	}
       }

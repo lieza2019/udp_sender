@@ -17,22 +17,22 @@
 static struct {
   useconds_t cast_interval;
   int blk_packetsnum;
-  UDPSENDER_OPEMODE mode;  
+  UDPSENDER_OPEMODE mode;
+#if 0
   in_addr_t dst_ipaddr;
+#else
+  struct {
+    IPADDR dest_ip;
+    in_addr_t dst_addr;
+  } dest;
+#endif
 #if 0
   in_addr_t emit_nicaddr;
 #else
-#if 0
   struct {
     IPADDR emit_nic;
-    in_addr_t emit_ipaddr;
-  } emit_nic_mcast;
-#else
-  struct {
-    IPADDR emit_nic;
-    in_addr_t emit_ipaddr;
+    in_addr_t emit_addr;
   } emit_mcast;
-#endif
 #endif
   unsigned short dstport;
   unsigned int seq;
@@ -66,17 +66,21 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	udpsender_cond.mode = MODE_MULTICAST;
 #if 0
 	IPADDR emit_nic = {};
-	par_ipaddr( &emit_nic, argv[2], "EMIT_NIC_IPADDR:" );
+	par_ipaddr( &emit_nic, argv[2], "EMIT_NIC_IPADDR: " );
 #else
-	BOOL acc_emit_ip = FALSE;
-	acc_emit_ip = par_ipaddr( &udpsender_cond.emit_mcast.emit_nic, argv[2], "EMIT_NIC_IPADDR:" );
+	BOOL emit_nic_ip = FALSE;
+	emit_nic_ip = par_ipaddr( &udpsender_cond.emit_mcast.emit_nic, argv[2], "EMIT_NIC_IPADDR: " );
 #endif
-	udpsender_cond.emit_mcast.emit_ipaddr = inet_addr( argv[2] );
-	if( acc_emit_ip && !(udpsender_cond.emit_mcast.emit_ipaddr < 0) ) {
-	  udpsender_cond.dst_ipaddr = inet_addr( argv[3] );
-	  if( !(udpsender_cond.dst_ipaddr < 0) ) {
+	udpsender_cond.emit_mcast.emit_addr = inet_addr( argv[2] );
+	if( emit_nic_ip && !(udpsender_cond.emit_mcast.emit_addr < 0) ) {
+#if 1
+	  BOOL mcast_grpaddr = FALSE;
+	  mcast_grpaddr = par_ipaddr( &udpsender_cond.dest.dest_ip, argv[3], "DST_MCAST_IPADDR: " );
+#endif
+	  udpsender_cond.dest.dst_addr = inet_addr( argv[3] );
+	  if( mcast_grpaddr && !(udpsender_cond.dest.dst_addr < 0) ) {
 	    BOOL acc_dstport = FALSE;
-	    acc_dstport = par_portnum( &udpsender_cond.dstport, argv[4], "UDP_MULTICAST_DSTPORT:" );
+	    acc_dstport = par_portnum( &udpsender_cond.dstport, argv[4], "UDP_SENT_DSTPORT: " );
 	    if( acc_dstport ) {
 	      if( argc > 5 ) {
 		int nblkpackets = -1;
@@ -129,6 +133,7 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  show_banner();
       } else {
 	// udpsender DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]
+	BOOL acc_dest = FALSE;
 	assert( argc >= 3 );
 	if( argc <= 5 ) {
 	  opt_1 = argv[1];
@@ -138,13 +143,15 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	    opt_3 = argv[3];
 	    if( argc > 4 )
 	      opt_4 = argv[4];
-	  }
+	  } else
+	    show_banner();
 	mode_udp_unicast:
 	  udpsender_cond.mode = MODE_UDP_UNICAST;
-	  udpsender_cond.dst_ipaddr = inet_addr( opt_1 );
-	  if( !(udpsender_cond.dst_ipaddr < 0) ) {
+	  acc_dest = par_ipaddr( &udpsender_cond.dest.dest_ip, opt_1, "DST_HOST_IPADDR: " );
+	  udpsender_cond.dest.dst_addr = inet_addr( opt_1 );
+	  if( acc_dest && !(udpsender_cond.dest.dst_addr < 0) ) {
 	    BOOL acc_dstport = FALSE;
-	    acc_dstport = par_portnum( &udpsender_cond.dstport, opt_2, "UDP_UNICAST_DSTPORT:" );
+	    acc_dstport = par_portnum( &udpsender_cond.dstport, opt_2, "UDP_SENT_DSTPORT: " );
 	    if( acc_dstport ) {
 	      if( opt_3 ) {
 		int nblkpackets = -1;
@@ -193,16 +200,16 @@ int main ( int argc, char **argv ) {
     exit( TERM_CANNOT_CREATE_SOCKET );
   }
   assert( udpsender_cond.dstport > 0 );
-  assert( udpsender_cond.dst_ipaddr != 0 );
+  assert( udpsender_cond.dest.dst_addr != 0 );
   addr.sin_family = AF_INET;
   addr.sin_port = htons( udpsender_cond.dstport );
-  addr.sin_addr.s_addr = udpsender_cond.dst_ipaddr;
+  addr.sin_addr.s_addr = udpsender_cond.dest.dst_addr;
   if( udpsender_cond.mode == MODE_MULTICAST ) {
     int r_optmod = -1;
-    assert( udpsender_cond.emit_mcast.emit_ipaddr != 0 );
+    assert( udpsender_cond.emit_mcast.emit_addr != 0 );
     r_optmod = setsockopt( sock, IPPROTO_IP, IP_MULTICAST_IF,
-			   (char *)&udpsender_cond.emit_mcast.emit_ipaddr,
-			   sizeof(udpsender_cond.emit_mcast.emit_ipaddr) );
+			   (char *)&udpsender_cond.emit_mcast.emit_addr,
+			   sizeof(udpsender_cond.emit_mcast.emit_addr) );
     if( r_optmod < 0 ) {
       printf( "failed to specify the NIC for UDP MULTI-casting, giving up.\n" );
       exit( TERM_CANNOT_MODIFY_SOCKETOPT );
