@@ -39,92 +39,6 @@ static void show_banner ( void ) {
   printf( " [CAST_INTERVAL]: Interval for MULTI-cast in msec, from 100 to 999.\n" );
 }
 
-#if 0
-static BOOL exam_cmdopts ( int argc, char **argv ) {
-  BOOL r = FALSE;
-  assert( (argc > 0) && argv[0] );
-  
-  if( (argc >= 3) && (argc <= 6) ) {
-    if( strcmp( argv[1], "-m" ) == 0 ) { /* MODE_MULTICAST */
-      if( argc >= 5 ) {
-	udpsender_cond.mode = MODE_MULTICAST;
-	udpsender_cond.emit_nicaddr = inet_addr( argv[2] );
-	if( !(udpsender_cond.emit_nicaddr < 0) ) {
-	  udpsender_cond.dst_ipaddr = inet_addr( argv[3] );
-	  if( !(udpsender_cond.dst_ipaddr < 0) ) {
-	    BOOL acc_dstport = FALSE;
-	    acc_dstport = par_portnum( &udpsender_cond.dstport, argv[4], "UDP_MULTICAST_DSTPORT:" );
-	    if( acc_dstport ) {	      
-	      if( argc > 5 ) {
-		int interval = -1;
-		interval = atoi( argv[5] );
-		if( (interval >= 100) && (interval < 1000) ) {
-		  udpsender_cond.cast_interval = interval * 1000;
-		  r = TRUE;
-		} else
-		  printf( "CAST_INTERVAL excesses range.\n" );
-	      } else
-		r = TRUE;
-	    }
-	  } else
-	    printf( "invalid DST_MCAST_IPADDR.\n" );
-	} else
-	  printf( "invalid EMIT_NIC_IPADDR.\n" );
-      } else
-	show_banner();
-    } else { /* MODE_UDP_UNICAST */
-      char *opt_1 = NULL; // DST_HOST_IPADDR
-      char *opt_2 = NULL; // UDP_SENT_DSTPORT
-      char *opt_3 = NULL; // CAST_INTERVAL
-      if( strcmp( argv[1], "-u" ) == 0 ) {
-	if( argc <= 5 ) {
-	  if( argc >= 4 ) {
-	    opt_1 = argv[2];
-	    opt_2 = argv[3];
-	    if( argc > 4 ) {
-	      assert( argc == 5 );
-	      opt_3 = argv[4];
-	    }
-	    goto mode_udp_unicast;
-	  } else
-	    show_banner();
-	} else
-	  show_banner();
-      } else {
-	if( argc <= 4 ) {
-	  opt_1 = argv[1];
-	  opt_2 = argv[2];
-	  if( argc == 4 )
-	    opt_3 = argv[3];
-	mode_udp_unicast:
-	  udpsender_cond.mode = MODE_UDP_UNICAST;
-	  udpsender_cond.dst_ipaddr = inet_addr( opt_1 );
-	  if( !(udpsender_cond.dst_ipaddr < 0) ) {
-	    BOOL acc_dstport = FALSE;
-	    acc_dstport = par_portnum( &udpsender_cond.dstport, opt_2, "UDP_UNICAST_DSTPORT:" );
-	    if( acc_dstport ) {
-	      if( opt_3 ) {
-		int interval = -1;
-		interval = atoi( opt_3 );
-		if( (interval >= 100) && (interval < 1000) ) {
-		  udpsender_cond.cast_interval = interval * 1000;
-		  r = TRUE;
-		} else
-		  printf( "CAST_INTERVAL excesses range.\n" );
-	      } else
-		r = TRUE;
-	    }
-	  } else
-	    printf( "invalid DST_HOST_IPADDR.\n" );
-	} else
-	  show_banner();
-      }
-    }
-  } else
-    show_banner();
-  return r;
-}
-#else
 static BOOL exam_cmdopts ( int argc, char **argv ) {
   BOOL r = FALSE;
   assert( (argc > 0) && argv[0] );
@@ -142,15 +56,6 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	    acc_dstport = par_portnum( &udpsender_cond.dstport, argv[4], "UDP_MULTICAST_DSTPORT:" );
 	    if( acc_dstport ) {
 	      if( argc > 5 ) {
-#if 0 // *****
-		int interval = -1;
-		interval = atoi( argv[5] );
-		if( (interval >= 100) && (interval < 1000) ) {
-		  udpsender_cond.cast_interval = interval * 1000;
-		  r = TRUE;
-		} else
-		  printf( "CAST_INTERVAL excesses range.\n" );
-#else
 		int nblkpackets = -1;
 		nblkpackets = atoi( argv[5] );
 		if( (nblkpackets > 0) && (nblkpackets <= 10000) ) {
@@ -168,7 +73,6 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 		    r = TRUE;
 		} else
 		  printf( "BULKSENT_PACKETSNUM excesses range.\n" );
-#endif
 	      } else
 		r = TRUE;
 	    }
@@ -189,19 +93,12 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  if( argc >= 4 ) {
 	    opt_1 = argv[2];
 	    opt_2 = argv[3];
-#if 0 // *****
-	    if( argc > 4 ) {
-	      assert( argc == 5 );
-	      opt_4 = argv[4];
-	    }
-#else
 	    if( argc > 4 ) {
 	      assert( (argc >= 5) && (argc <= 6) );
 	      opt_3 = argv[4];
 	      if( argc > 5 )
 		opt_4 = argv[5];
 	    }
-#endif
 	    goto mode_udp_unicast;
 	  } else
 	    show_banner();
@@ -213,17 +110,12 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	if( argc <= 5 ) {
 	  opt_1 = argv[1];
 	  opt_2 = argv[2];
-#if 0 // *****
-	  if( argc == 4 )
-	    opt_4 = argv[3];
-#else
 	  if( argc > 3 ) {
 	    assert( (argc >= 4) && (argc <= 5) );
 	    opt_3 = argv[3];
 	    if( argc > 4 )
 	      opt_4 = argv[4];
 	  }
-#endif
 	mode_udp_unicast:
 	  udpsender_cond.mode = MODE_UDP_UNICAST;
 	  udpsender_cond.dst_ipaddr = inet_addr( opt_1 );
@@ -231,18 +123,6 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	    BOOL acc_dstport = FALSE;
 	    acc_dstport = par_portnum( &udpsender_cond.dstport, opt_2, "UDP_UNICAST_DSTPORT:" );
 	    if( acc_dstport ) {
-#if 0 // *****
-	      if( opt_4 ) {
-		int interval = -1;
-		interval = atoi( opt_4 );
-		if( (interval >= 100) && (interval < 1000) ) {
-		  udpsender_cond.cast_interval = interval * 1000;
-		  r = TRUE;
-		} else
-		  printf( "CAST_INTERVAL excesses range.\n" );
-	      } else
-		r = TRUE;
-#else
 	      if( opt_3 ) {
 		int nblkpackets = -1;
 		nblkpackets = atoi( opt_3 );
@@ -262,7 +142,6 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 		  printf( "BULKSENT_PACKETSNUM excesses range.\n" );
 	      } else
 		r = TRUE;
-#endif
 	    }
 	  } else
 	    printf( "invalid DST_HOST_IPADDR.\n" );
@@ -274,7 +153,6 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
     show_banner();
   return r;
 }
-#endif
 
 static unsigned char payload_buf[UDP_PAYLOAD_EDITBUF];
 static int edit_sentdata ( void );
@@ -310,31 +188,9 @@ int main ( int argc, char **argv ) {
   FOREVER {
     int data_size = -1;
     int sent_bytes = -1;
+    int i;
     data_size = edit_sentdata();
     assert( data_size > -1 );
-#if 0
-    sent_bytes = sendto( sock, payload_buf, data_size, 0, (struct sockaddr *)&addr, sizeof(addr) );
-    if( sent_bytes < 0 )
-      printf( "faled to send the UDP packet, :-P\n" );
-    else
-      printf( "seq:%u, sent %d [bytes].\n", udpsender_cond.seq, sent_bytes );
-    udpsender_cond.seq++;
-#else
-#if 0
-    udpsender_cond.blk_packetsnum = 10000;
-    {
-      int i;
-      for( i = 0; i < udpsender_cond.blk_packetsnum; i++ ) {
-	sent_bytes = sendto( sock, payload_buf, data_size, 0, (struct sockaddr *)&addr, sizeof(addr) );
-	if( sent_bytes < 0 )
-	  printf( "faled to send the UDP packet, :-P\n" );
-	else
-	  printf( "seq:%u, sent %d [bytes].\n", udpsender_cond.seq, sent_bytes );
-	udpsender_cond.seq++;
-      }
-    }
-#else
-    int i;
     for( i = 0; i < udpsender_cond.blk_packetsnum; i++ ) {
       sent_bytes = sendto( sock, payload_buf, data_size, 0, (struct sockaddr *)&addr, sizeof(addr) );
       if( sent_bytes < 0 )
@@ -343,8 +199,6 @@ int main ( int argc, char **argv ) {
 	printf( "seq:%u, sent %d [bytes].\n", udpsender_cond.seq, sent_bytes );
       udpsender_cond.seq++;
     }
-#endif
-#endif
     usleep( udpsender_cond.cast_interval );
   }
   close( sock );
