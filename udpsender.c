@@ -9,31 +9,18 @@
 #include <assert.h>
 #include "udpsender.h"
 
-#define TERM_NORMALLY 0
-#define TERM_ILLFORMED_CMDPARAMS 1
-#define TERM_CANNOT_CREATE_SOCKET 2
-#define TERM_CANNOT_MODIFY_SOCKETOPT 3
-
 static struct {
   useconds_t cast_interval;
   int blk_packetsnum;
   UDPSENDER_OPEMODE mode;
-#if 0
-  in_addr_t dst_ipaddr;
-#else
   struct {
     IPADDR dest_ip;
     in_addr_t dst_addr;
   } dest;
-#endif
-#if 0
-  in_addr_t emit_nicaddr;
-#else
   struct {
     IPADDR emit_nic;
     in_addr_t emit_addr;
   } emit_mcast;
-#endif
   unsigned short dstport;
   unsigned int seq;
 } udpsender_cond = { DEFALUT_SEND_INTERVAL, 1 };
@@ -43,7 +30,7 @@ static void show_banner ( void ) {
   printf( "       udpsender [-u] DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]\n" );
   printf( " DST_HOST_IPADDR: The IP addr assigned to the NIC on target host.\n" );
   printf( " UDP_SENT_DSTPORT: The UDP desination port to be unicasted by this program.\n" );
-  printf( " BULKSENT_PACKETSNUM: num of packets sent in bulk, from 1 to 10000.\n" );
+  printf( " BULKSENT_PACKETSNUM: Num. of packets sent in bulk, from 1 to 10000.\n" );
   printf( " CAST_INTERVAL: Interval for UDP unicast in msec, from 100 to 999.\n" );
   printf( "\n" );
   printf( "usage: udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]\n" );
@@ -51,7 +38,7 @@ static void show_banner ( void ) {
   printf( " EMIT_NIC_IPADDR: The IP addr assigned on the NIC for UDP MULTI-cast packets emission.\n" );
   printf( " DST_MCAST_IPADDR: The detination MULTI-cast addr for sent.\n" );
   printf( " UDP_SENT_DSTPORT: The desination UDP/IP port to be casted.\n" );
-  printf( " BULKSENT_PACKETSNUM: num of packets sent in bulk, from 1 to 10000.\n" );
+  printf( " BULKSENT_PACKETSNUM: Num. of packets sent in bulk, from 1 to 10000.\n" );
   printf( " CAST_INTERVAL: Interval for MULTI-cast in msec, from 100 to 999.\n" );
 }
 
@@ -61,22 +48,17 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
   
   if( (argc >= 3) && (argc <= 7) ) {
     if( strcmp( argv[1], "-m" ) == 0 ) { /* MODE_MULTICAST */
-      // udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]
+      /* udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]
+       * udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
+       */
       if( argc >= 5 ) {
 	udpsender_cond.mode = MODE_MULTICAST;
-#if 0
-	IPADDR emit_nic = {};
-	par_ipaddr( &emit_nic, argv[2], "EMIT_NIC_IPADDR: " );
-#else
 	BOOL emit_nic_ip = FALSE;
 	emit_nic_ip = par_ipaddr( &udpsender_cond.emit_mcast.emit_nic, argv[2], "EMIT_NIC_IPADDR: " );
-#endif
 	udpsender_cond.emit_mcast.emit_addr = inet_addr( argv[2] );
 	if( emit_nic_ip && !(udpsender_cond.emit_mcast.emit_addr < 0) ) {
-#if 1
 	  BOOL mcast_grpaddr = FALSE;
 	  mcast_grpaddr = par_ipaddr( &udpsender_cond.dest.dest_ip, argv[3], "DST_MCAST_IPADDR: " );
-#endif
 	  udpsender_cond.dest.dst_addr = inet_addr( argv[3] );
 	  if( mcast_grpaddr && !(udpsender_cond.dest.dst_addr < 0) ) {
 	    BOOL acc_dstport = FALSE;
@@ -115,7 +97,9 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
       char *opt_3 = NULL; // BULKSENT_PACKETSNUM
       char *opt_4 = NULL; // CAST_INTERVAL
       if( strcmp( argv[1], "-u" ) == 0 ) {
-	// udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]
+	/* udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]
+	 * udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
+	 */
 	if( argc <= 6 ) {
 	  if( argc >= 4 ) {
 	    opt_1 = argv[2];
@@ -132,7 +116,9 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	} else
 	  show_banner();
       } else {
-	// udpsender DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM] [CAST_INTERVAL]
+	/* udpsender DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]
+	 * udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
+	 */
 	BOOL acc_dest = FALSE;
 	assert( argc >= 3 );
 	if( argc <= 5 ) {

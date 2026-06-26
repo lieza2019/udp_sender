@@ -12,7 +12,6 @@ typedef enum ipaddr_par_ph {
   FOR_OCT,
   END_OF_PAR_PH
 } IPADDR_PAR_PH;
-
 BOOL par_ipaddr ( IPADDR_PTR pipaddr, const char *pstr_ipaddr, const char *prefix_errmsg ) {
   assert( pipaddr );
   assert( pstr_ipaddr );
