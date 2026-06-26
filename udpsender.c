@@ -52,8 +52,8 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
        * udpsender -m EMIT_NIC_IPADDR DST_MCAST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
        */
       if( argc >= 5 ) {
-	udpsender_cond.mode = MODE_MULTICAST;
 	BOOL emit_nic_ip = FALSE;
+	udpsender_cond.mode = MODE_MULTICAST;
 	emit_nic_ip = par_ipaddr( &udpsender_cond.emit_mcast.emit_nic, argv[2], "EMIT_NIC_IPADDR: " );
 	udpsender_cond.emit_mcast.emit_addr = inet_addr( argv[2] );
 	if( emit_nic_ip && !(udpsender_cond.emit_mcast.emit_addr < 0) ) {
@@ -91,12 +91,12 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  printf( "invalid EMIT_NIC_IPADDR.\n" );
       } else
 	show_banner();
-    } else { /* MODE_UDP_UNICAST */
+    } else {
       char *opt_1 = NULL; // DST_HOST_IPADDR
       char *opt_2 = NULL; // UDP_SENT_DSTPORT
       char *opt_3 = NULL; // BULKSENT_PACKETSNUM
       char *opt_4 = NULL; // CAST_INTERVAL
-      if( strcmp( argv[1], "-u" ) == 0 ) {
+      if( strcmp( argv[1], "-u" ) == 0 ) { /* MODE_UDP_UNICAST */
 	/* udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]
 	 * udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
 	 */
@@ -115,9 +115,9 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	    show_banner();
 	} else
 	  show_banner();
-      } else {
+      } else { /* MODE_UDP_UNICAST, as DEFAULT */
 	/* udpsender DST_HOST_IPADDR UDP_SENT_DSTPORT [BULKSENT_PACKETSNUM]
-	 * udpsender -u DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
+	 * udpsender DST_HOST_IPADDR UDP_SENT_DSTPORT BULKSENT_PACKETSNUM [CAST_INTERVAL]
 	 */
 	BOOL acc_dest = FALSE;
 	assert( argc >= 3 );
