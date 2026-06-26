@@ -3,7 +3,7 @@
 #define FALSE 0
 #define FOREVER for(;;)
 
-#define DEFALUT_SEND_INTERVAL (500 * 1000) // in micro-seconds.
+#define DEFALUT_SEND_INTERVAL (999 * 1000) // in micro-seconds.
 #define UDP_PAYLOAD_EDITBUF 520 // in bytes.
 
 typedef enum ope_mode {
