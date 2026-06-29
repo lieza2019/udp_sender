@@ -129,8 +129,7 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	    opt_3 = argv[3];
 	    if( argc > 4 )
 	      opt_4 = argv[4];
-	  } else
-	    show_banner();
+	  }
 	mode_udp_unicast:
 	  udpsender_cond.mode = MODE_UDP_UNICAST;
 	  acc_dest = par_ipaddr( &udpsender_cond.dest.dest_ip, opt_1, "DST_HOST_IPADDR: " );
