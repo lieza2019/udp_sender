@@ -17,10 +17,14 @@ udpsender.o : udpsender.c udpsender.h
 cmdopt_par.o : cmdopt_par.c udpsender.h
 	$(CC) $(CFLAGS) -c $<
 
+udpreceiv : udpreceiv.c
+	$(CC) -o $@ $(CFLAGS) $^
+
 .phony : clean
 clean :
 	-$(RM) ./*.o
 	-$(RM) ./udpsender
+	-$(RM) ./udpreceiv
 	-$(RM) ./a.out
 	-$(RM) ./*core
 	-$(RM) ./*~

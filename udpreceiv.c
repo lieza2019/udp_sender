@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 
+/* configuration parameters. */
 #define UDP_MSG_LENGTH 520
 #define UDP_UNICAST_RECVPORT 50001
 #define uSLEEP_RECV_INTERVAL (20 * 1000)
@@ -41,22 +42,24 @@ int main ( int argc, char *argv[] ) {
   }
   
   memset( recv_buf, 0, sizeof(recv_buf) );
-  for(;;) {
-    const char *plim = &recv_buf[UDP_RECV_BUFSIZ];
-    char *pw = recv_buf;
-    if( (plim - pw) > UDP_MSG_LENGTH ) {
-      int n = -1;
-      //recv( sock, recv_buf, sizeof(recv_buf), 0 );
-      n = recv( sock, pw, UDP_MSG_LENGTH, 0 );
-      if( n < 0 )
-	printf( "failed to receive UDP datagram.\n" );
-      else
-	printf( "reveived %d bytes.\n", n );
-    } else {
-      printf( "recv buffer lacked, flushed themall and standing-by again.\n" );
-      pw = recv_buf;
+  {
+    unsigned long cnt = 0;
+    for(;;) {
+      const char *plim = &recv_buf[UDP_RECV_BUFSIZ];
+      char *pw = recv_buf;
+      if( (plim - pw) > UDP_MSG_LENGTH ) {
+	int n = -1;
+	n = recv( sock, pw, UDP_MSG_LENGTH, 0 );
+	if( n < 0 )
+	  printf( "failed to receive UDP datagram.\n" );
+	else
+	  printf( "%lu: received %d bytes.\n", cnt++, n );
+      } else {
+	printf( "recv buffer lacked, flushed themall and standing-by again.\n" );
+	pw = recv_buf;
+      }
+      usleep( uSLEEP_RECV_INTERVAL );
     }
-    usleep( uSLEEP_RECV_INTERVAL );
   }
   close( sock );
   return TERM_NORMALLY;
