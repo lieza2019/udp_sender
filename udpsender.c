@@ -56,11 +56,11 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	udpsender_cond.mode = MODE_MULTICAST;
 	emit_nic_ip = par_ipaddr( &udpsender_cond.emit_mcast.emit_nic, argv[2], "EMIT_NIC_IPADDR: " );
 	udpsender_cond.emit_mcast.emit_addr = inet_addr( argv[2] );
-	if( emit_nic_ip && !(udpsender_cond.emit_mcast.emit_addr < 0) ) {
+	if( emit_nic_ip && (udpsender_cond.emit_mcast.emit_addr != INADDR_NONE) ) {
 	  BOOL mcast_grpaddr = FALSE;
 	  mcast_grpaddr = par_ipaddr( &udpsender_cond.dest.dest_ip, argv[3], "DST_MCAST_IPADDR: " );
 	  udpsender_cond.dest.dst_addr = inet_addr( argv[3] );
-	  if( mcast_grpaddr && !(udpsender_cond.dest.dst_addr < 0) ) {
+	  if( mcast_grpaddr && (udpsender_cond.dest.dst_addr != INADDR_NONE) ) {
 	    BOOL acc_dstport = FALSE;
 	    acc_dstport = par_portnum( &udpsender_cond.dstport, argv[4], "UDP_SENT_DSTPORT: " );
 	    if( acc_dstport ) {
@@ -134,7 +134,7 @@ static BOOL exam_cmdopts ( int argc, char **argv ) {
 	  udpsender_cond.mode = MODE_UDP_UNICAST;
 	  acc_dest = par_ipaddr( &udpsender_cond.dest.dest_ip, opt_1, "DST_HOST_IPADDR: " );
 	  udpsender_cond.dest.dst_addr = inet_addr( opt_1 );
-	  if( acc_dest && !(udpsender_cond.dest.dst_addr < 0) ) {
+	  if( acc_dest && (udpsender_cond.dest.dst_addr != INADDR_NONE) ) {
 	    BOOL acc_dstport = FALSE;
 	    acc_dstport = par_portnum( &udpsender_cond.dstport, opt_2, "UDP_SENT_DSTPORT: " );
 	    if( acc_dstport ) {
